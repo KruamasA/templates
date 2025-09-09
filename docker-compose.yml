@@ -1,0 +1,46 @@
+# services:
+#   mongodb:
+#     image: mongo
+#     container_name: templates
+#     ports:
+#       - '27017:27017'
+#   app:
+#     build:
+#       context: .
+#     container_name: templates
+#     ports:
+#       - '3000:3000'
+#     restart: always
+#     depends_on:
+#       - mongodb
+#     environment:
+#       - MONGO_URL=mongodb://mongodb:27017/templates
+
+  
+version: '3.9'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: templates_mongodb
+    restart: always
+    ports:
+      - '27017:27017'
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    #   MONGO_INITDB_DATABASE: templates
+    # volumes:
+    #   - mongo_data:/data/db
+
+  app:
+    build:
+      context: .
+    container_name: templates_app
+    ports:
+      - '3000:3000'
+    restart: always
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=mongodb://root:rootpassword@mongodb:27017/templates
