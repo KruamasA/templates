@@ -1,70 +1,66 @@
-// import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-// import { TemplateService } from './template.service';
-// import { CreateTemplateDto } from './dto/create-template.dto';
-// import { UpdateTemplateDto } from './dto/update-template.dto';
-
-// @Controller('template')
-// export class TemplateController {
-//   constructor(private readonly templateService: TemplateService) {}
-
-//   @Post()
-//   create(@Body() createTemplateDto: CreateTemplateDto) {
-//     return this.templateService.create(createTemplateDto);
-//   }
-
-//   @Get()
-//   findAll() {
-//     return this.templateService.findAll();
-//   }
-
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.templateService.findOne(+id);
-//   }
-
-//   @Patch(':id')
-//   update(@Param('id') id: string, @Body() updateTemplateDto: UpdateTemplateDto) {
-//     return this.templateService.update(+id, updateTemplateDto);
-//   }
-
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.templateService.remove(+id);
-//   }
-// }
-
-
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
+  Query,
+} from '@nestjs/common';
 import { TemplateService } from './template.service';
-import { CreateTemplateDto } from './dto/create-template.dto';
-import { UpdateTemplateDto } from './dto/update-template.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('templates')
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
   @Post()
-  create(@Body() createDto: CreateTemplateDto) {
-    return this.templateService.create(createDto);
+  @UseInterceptors(FileInterceptor('value'))
+  async createTemplate(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('name') name: string,
+  ) {
+    const createdTemplate = await this.templateService.createTemplate(
+      name,
+      file,
+    );
+    console.log('saved', createdTemplate);
+
+    return createdTemplate;
   }
 
   @Get()
-  findAll() {
-    return this.templateService.findAll();
+  getTemplates(@Query('name') name: string) {
+    return this.templateService.getTemplates(name);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.templateService.findOne(id);
+  getOneTemplate(@Param('id') id: string) {
+    console.log('getOneTemplate id', id);
+    
+    return this.templateService.getOneTemplate(id);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateDto: UpdateTemplateDto) {
-    return this.templateService.update(id, updateDto);
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor('value'))
+  async updateTemplate(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('name') name: string,
+  ) {
+    const updatedTemplate = await this.templateService.updateTemplate(
+      id,
+      name,
+      file,
+    );
+    return updatedTemplate;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.templateService.remove(id);
+  removeTemplate(@Param('id') id: string) {
+    return this.templateService.removeTemplate(id);
   }
 }

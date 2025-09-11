@@ -10,6 +10,9 @@ export class Template {
 
   @Prop({ required: true })
   value: string;
+
+  @Prop({ type: Date, default: null })
+  deletedAt: Date;
 }
 
 export const TemplateSchema = SchemaFactory.createForClass(Template);
